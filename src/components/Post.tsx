@@ -1,3 +1,4 @@
+'use client'
 import {
   Center,
   HStack,
@@ -12,7 +13,7 @@ import {
 import Link from 'next/link'
 import { colors } from '@/theme'
 import { LiteTag } from '@/components/ui/Tags'
-import { RightArrow } from '@/icons/RightArrow'
+import { RightArrow } from '@/icons/Arrows'
 import { NewsPaper } from '@/icons/NewsPaper'
 
 interface PostProps {
@@ -21,16 +22,24 @@ interface PostProps {
   tagTitle: string
   readTime: string
   type: 'primary' | 'secondary'
+  isMain?: boolean
 }
 
-export const Post = ({ title, image, tagTitle, readTime, type }: PostProps) => {
+export const Post = ({
+  title,
+  image,
+  tagTitle,
+  readTime,
+  type,
+  isMain = false,
+}: PostProps) => {
   return (
-    <Card.Root overflow='hidden' position='relative' rounded={0}>
+    <Card.Root overflow='hidden' position='relative' rounded={0} h='100%'>
       <Image
         src={image}
         alt='Green double couch with wooden legs'
         objectFit='fill'
-        h={378}
+        h={{ base: isMain ? '100%' : '378px', md: '100%' }}
       />
 
       <Center
@@ -50,7 +59,8 @@ export const Post = ({ title, image, tagTitle, readTime, type }: PostProps) => {
               fontWeight='bold'
               color={type === 'primary' ? 'white' : 'black'}
               lineHeight='27px'
-              fontSize='18px'>
+              fontSize='18px'
+              maxW={'350px'}>
               {title}
             </Heading>
 
@@ -84,5 +94,32 @@ export const Post = ({ title, image, tagTitle, readTime, type }: PostProps) => {
         </VStack>
       </Center>
     </Card.Root>
+  )
+}
+
+export const MostPopularPost = ({
+  title,
+  image,
+}: {
+  title: string
+  image: string
+}) => {
+  return (
+    <Box display={'flex'} justifyContent={'space-between'} gap={2}>
+      <Text
+        fontSize={'16px'}
+        fontWeight={600}
+        fontFamily='var(--font-space-grotesk)'
+        color={colors.gray}>
+        {title}
+      </Text>
+      <Image
+        src={image}
+        alt='Green double couch with wooden legs'
+        objectFit='fill'
+        h={'80px'}
+        w={'80px'}
+      />
+    </Box>
   )
 }

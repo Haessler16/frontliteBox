@@ -7,7 +7,7 @@ export const buttonRecipe = defineRecipe({
     transition: 'all 0.2s cubic-bezier(.08,.52,.52,1)',
     borderRadius: 'md',
     fontWeight: 'semibold',
-    _focus: { transform: 'scale(1.05)' },
+    _focus: { transform: 'scale(1.03)' },
   },
   variants: {
     variant: {
@@ -20,7 +20,7 @@ export const buttonRecipe = defineRecipe({
         _hover: {
           bg: { base: '#000000', md: '#000000' },
           color: { base: 'white', md: 'white' },
-          transform: 'scale(1.05)',
+          transform: 'scale(1.03)',
         },
         _focus: {
           boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.6)',
@@ -45,7 +45,7 @@ export const buttonRecipe = defineRecipe({
         _hover: {
           bg: { base: colors.neonGreen, md: colors.neonGreen },
           color: 'black',
-          transform: 'scale(1.05)',
+          transform: 'scale(1.03)',
         },
         _focus: {
           boxShadow: '0 0 0 3px rgba(237, 242, 247, 0.6)',
@@ -68,7 +68,7 @@ export const buttonRecipe = defineRecipe({
           color: colors.black,
           border: '1px solid',
           borderColor: colors.black,
-          transform: 'scale(1.05)',
+          transform: 'scale(1.03)',
         },
         _focus: {
           boxShadow: '0 0 0 3px rgba(0, 0, 0, 0.6)',
@@ -94,7 +94,7 @@ export const buttonRecipe = defineRecipe({
         padding: '5px 0',
         _hover: {
           bg: { base: colors.black, md: colors.black },
-          transform: 'scale(1.05)',
+          transform: 'scale(1.03)',
           color: colors.white,
         },
         _focus: {
