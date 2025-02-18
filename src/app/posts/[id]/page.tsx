@@ -1,3 +1,4 @@
+'use client'
 import { Container, Text, HStack, Box, Heading } from '@chakra-ui/react'
 import { MainTitle } from '@/components/MainTitle'
 import { colors } from '@/theme'
@@ -5,19 +6,24 @@ import { Post, MostPopularPost, iPost } from '@/components/Post'
 import { Separator } from '@chakra-ui/react'
 import { FaXTwitter, FaLinkedinIn, FaFacebookF } from 'react-icons/fa6'
 import { LiteFooter } from '@/components/Footer'
+import { Modal } from '@/components/Modal'
+import { useState, use } from 'react'
 
-export default async function PostDetail({
+export default function PostDetail({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = await params
+  const unwrappedParams = use(params)
+  const { id } = unwrappedParams
+
+  const [open, setOpen] = useState(false)
   // Mock data for the current post
   const currentPost = {
     title: 'Your Kid May Already Be Watching AI-Generated Videos on YouTube',
     image:
       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-    tagTitle: 'AI',
+    tags: 'AI',
     readTime: '6 mins',
     content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat.
 
@@ -51,6 +57,8 @@ export default async function PostDetail({
       {/* Header */}
       <HStack justify='space-between' marginBottom={4}>
         <MainTitle />
+
+        <Modal open={open} setOpen={setOpen} />
       </HStack>
 
       {/* Main Content */}
@@ -60,7 +68,6 @@ export default async function PostDetail({
           <Box maxH={'544px'} height='100%' marginBottom={8}>
             <Post
               post={currentPost as unknown as iPost}
-              readTime={currentPost.readTime}
               type='primary'
               isMain={true}
             />
@@ -99,12 +106,7 @@ export default async function PostDetail({
               gridTemplateColumns={{ md: 'repeat(3, 1fr)' }}
               gap={4}>
               {relatedPosts.map((post, index) => (
-                <Post
-                  key={index}
-                  post={post as iPost}
-                  readTime='6 mins'
-                  type='secondary'
-                />
+                <Post key={index} post={post as iPost} type='secondary' />
               ))}
             </Box>
           </Box>

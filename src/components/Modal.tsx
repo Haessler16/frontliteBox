@@ -40,7 +40,7 @@ export const Modal = ({
 }: {
   open: boolean
   setOpen: (open: boolean) => void
-  refetch: () => void
+  refetch?: () => void
 }) => {
   const {
     register,
@@ -138,7 +138,9 @@ export const Modal = ({
 
     try {
       await axios.post(`${api}posts`, post)
-      refetch()
+      if (refetch) {
+        refetch()
+      }
 
       setIsSubmitSuccessful(true)
     } catch (error) {

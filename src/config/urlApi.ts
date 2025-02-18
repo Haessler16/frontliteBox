@@ -1,4 +1,4 @@
-// const localAPI = 'http://localhost:4200/'
+const localAPI = 'http://localhost:4200/'
 const externalAPI = 'https://postlitebox.onrender.com/'
 
-export const api = externalAPI
+export const api = localAPI
