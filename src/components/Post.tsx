@@ -20,16 +20,16 @@ export interface iPost {
   _id: string
   title: string
   image: string
-  tag: string
+  tags: string
+  readTime: string
 }
 export interface iPostProps {
   post: iPost
-  readTime: string
   type: 'primary' | 'secondary'
   isMain?: boolean
 }
 
-export const Post = ({ post, readTime, type, isMain = false }: iPostProps) => {
+export const Post = ({ post, type, isMain = false }: iPostProps) => {
   return (
     <Card.Root overflow='hidden' position='relative' rounded={0} h='100%'>
       <Image
@@ -47,7 +47,7 @@ export const Post = ({ post, readTime, type, isMain = false }: iPostProps) => {
         flexDir='column'>
         <VStack gap={0} width={'calc(100% - 3rem)'} alignItems='flex-start'>
           <Box bg={type === 'primary' ? 'black' : 'white'} pt={5} pb={1} px={4}>
-            <LiteTag title={post.tag} />
+            <LiteTag title={post.tags} />
           </Box>
 
           <Box bg={type === 'primary' ? 'black' : 'white'} p={4}>
@@ -83,7 +83,7 @@ export const Post = ({ post, readTime, type, isMain = false }: iPostProps) => {
               <HStack>
                 <NewsPaper />
                 <Text fontSize='sm' color={colors.gray}>
-                  {readTime}
+                  {post.readTime}
                 </Text>
               </HStack>
             </HStack>

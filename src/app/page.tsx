@@ -13,7 +13,7 @@ import {
   Separator,
   Spinner,
 } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import { colors } from '@/theme'
@@ -29,87 +29,43 @@ import { Modal } from '@/components/Modal'
 import { api } from '@/config/urlApi'
 import Topics from '@/constants/Topics'
 
-// const posts = [
-//   {
-//     _id: '1',
-//     title:
-//       'Dictators Used Sandvine Tech to Censor the Internet. The US Finally Did Something About It',
-//     tag: 'Crypto',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     _id: '2',
-//     title: 'Your Kid May Already Be Watching AI-Generated Videos on YouTube',
-//     tag: 'Entertainment',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     _id: '3',
-//     title: 'Here Come the AI Worms',
-//     tag: 'AI',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     _id: '4',
-//     title: 'The AI-Generated Video Boom Is Here',
-//     tag: 'Video',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     _id: '5',
-//     title: 'Tech Giants Are Using AI to Create Fake News',
-//     tag: 'Tech',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     _id: '6',
-//     title: 'Web3 Is the Future of the Internet',
-//     tag: 'Web3',
-//     image:
-//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-// ]
-
 export default function Home() {
-  // const [posts, setPosts] = useState<Post[]>([])
-  // const [page, setPage] = useState(1)
+  const POSTS_PER_PAGE = 9
+  const [currentEndIndex, setCurrentEndIndex] = useState(9)
+
   const {
     data: posts,
     isLoading,
     refetch,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['posts'],
-    queryFn: () => axios.get(`${api}posts?limit=10&offset=0`),
+    queryFn: ({ pageParam = 1 }) =>
+      axios.get(
+        `${api}posts?limit=${POSTS_PER_PAGE}&offset=${
+          (pageParam - 1) * POSTS_PER_PAGE
+        }`,
+      ),
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.data.length === POSTS_PER_PAGE
+        ? allPages.length + 1
+        : undefined
+    },
+    initialPageParam: 1,
   })
 
   const [open, setOpen] = useState(false)
   const [selectedTag, setSelectedTag] = useState<string[]>(['All'])
-
-  const { topics } = Topics()
-
-  // useEffect(() => {
-  //   const getPosts = async () => {
-  //     // const response = await fetch('https://jsonplaceholder.typicode.com/posts')
-  //     const { data } = await axios.get(`${api}posts?limit=10&offset=0`, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     })
-  //     console.log({ data })
-  //   }
-  //   getPosts()
-  // }, [])
 
   useEffect(() => {
     if (selectedTag.length === 0) {
       setSelectedTag(['All'])
     }
   }, [selectedTag])
+
+  const { topics } = Topics()
 
   function generatePosts(length: number) {
     const items = [{ value: 1, span: 2 }] // First post has span 2
@@ -119,11 +75,17 @@ export default function Home() {
     for (let i = 1; i < length; i++) {
       current += add4 ? 4 : 2
       // Span is 2 if the step was +4, else 1
-      items.push({ value: current, span: add4 ? 2 : 0 })
+      items.push({ value: current, span: 2 })
+      // items.push({ value: current, span: add4 ? 2 : 0 })
       add4 = !add4 // Toggle the step
     }
 
     return items
+  }
+
+  const handleLoadMore = () => {
+    fetchNextPage()
+    setCurrentEndIndex((prev) => prev + 9)
   }
 
   // Generate posts with spans
@@ -135,7 +97,7 @@ export default function Home() {
     )
   }
 
-  if (posts?.data.length === 0) {
+  if (posts?.pages[0].data.length === 0) {
     return (
       <Center height={'100vh'} flexDir='column' gap={4}>
         <Heading>No posts found</Heading>
@@ -144,8 +106,9 @@ export default function Home() {
     )
   }
 
-  console.log({ posts, selectedTag })
-  const postsWithSpans = generatePosts(posts?.data.lenght)
+  const allPosts = posts?.pages.flatMap((page) => page.data) || []
+  const postsWithSpans = generatePosts(allPosts.length)
+  console.log({ posts })
 
   return (
     <Container
@@ -164,12 +127,7 @@ export default function Home() {
 
       {/* Main Section */}
       <Box maxH={'544px'} height='100%'>
-        <Post
-          post={posts?.data[0]}
-          readTime='6 mins'
-          type='primary'
-          isMain={true}
-        />
+        <Post post={posts?.pages[0].data[0]} type='primary' isMain={true} />
       </Box>
 
       <VStack gap={2} alignItems='flex-start' marginY={4}>
@@ -204,15 +162,19 @@ export default function Home() {
             flexDir={{ base: 'column', md: 'row' }}
             gridTemplateColumns={{ md: 'repeat(2, 1fr)' }}
             gap={4}>
-            {posts?.data.slice(0, 3).map((post: iPost) => (
-              <Box
-                key={post._id}
-                gridRow={{
-                  md: `span ${Number(post._id) === 1 ? 2 : 0}`,
-                }}>
-                <Post post={post} readTime='6 mins' type='secondary' />
-              </Box>
-            ))}
+            {allPosts.slice(0, 3).map((post: iPost, index: number) => {
+              const refId = index + 1
+
+              return (
+                <Box
+                  key={post._id}
+                  gridRow={{
+                    md: `span ${refId === 1 ? 2 : 0}`,
+                  }}>
+                  <Post post={post} type='secondary' />
+                </Box>
+              )
+            })}
           </Box>
 
           <Card.Root
@@ -242,29 +204,37 @@ export default function Home() {
             flexDir={{ base: 'column', md: 'row' }}
             gridTemplateColumns={{ md: 'repeat(2, 1fr)' }}
             gap={4}>
-            {posts?.data.slice(3).map((post: iPost, index: number) => {
-              const refId = index + 4
+            {allPosts
+              .slice(3, currentEndIndex)
+              .map((post: iPost, index: number) => {
+                const refId = index + 4
 
-              return (
-                <Box
-                  key={post._id}
-                  gridRow={{
-                    md: `span ${
-                      postsWithSpans.find((b) => b.value === refId)?.span
-                    }`,
-                  }}>
-                  <Post post={post} readTime='6 mins' type='secondary' />
-                </Box>
-              )
-            })}
+                return (
+                  <Box
+                    key={post._id}
+                    gridRow={{
+                      md: `span ${
+                        postsWithSpans.find((b) => b.value === refId)?.span
+                      }`,
+                    }}>
+                    <Post post={post} type='secondary' />
+                  </Box>
+                )
+              })}
           </Box>
 
           <Center>
             <LiteButton
               variant='primary'
               width={{ base: 'full', md: 'auto' }}
-              marginY={10}>
-              Load More
+              marginY={10}
+              onClick={handleLoadMore}
+              disabled={!hasNextPage || isFetchingNextPage}>
+              {isFetchingNextPage
+                ? 'Loading...'
+                : hasNextPage
+                ? 'Load More'
+                : 'No more posts'}
             </LiteButton>
           </Center>
         </section>
@@ -282,7 +252,7 @@ export default function Home() {
             Most Viewed
           </Heading>
 
-          {posts?.data.map((post: iPost, index: number) => (
+          {allPosts.slice(0, 5).map((post: iPost, index: number) => (
             <Box key={index}>
               <Link
                 href={`/posts/most-viewed-${index + 1}`}

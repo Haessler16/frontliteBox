@@ -45,19 +45,33 @@ export const Modal = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
+    reset,
   } = useForm()
   const [uploadProgress, setUploadProgress] = useState<number | undefined>(
     undefined,
   )
+
+  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState<boolean>(false)
   const [imageString, setImageString] = useState<string | undefined>(undefined)
   const [rejectedFiles, setRejectedFiles] = useState<boolean>(false)
   const [internalError, setInternalError] = useState<string | undefined>(
     undefined,
   )
 
+  const resetForm = () => {
+    setIsSubmitSuccessful(false)
+    setUploadProgress(undefined)
+    setRejectedFiles(false)
+    setImageString(undefined)
+    setInternalError(undefined)
+    reset()
+  }
+
   const handleFileUpload = (file: File) => {
     const reader = new FileReader()
+    const maxWidth = 1200 // Maximum width for the compressed image
+    const quality = 0.7 // Image quality (0.1 to 1.0)
 
     reader.onloadstart = () => {
       setUploadProgress(0)
@@ -71,15 +85,43 @@ export const Modal = ({
     }
 
     reader.onload = () => {
-      setUploadProgress(100)
-      const base64String = reader.result as string
-      setImageString(base64String)
+      const img = new Image()
+      img.src = reader.result as string
+
+      img.onload = () => {
+        // Calculate new dimensions while maintaining aspect ratio
+        let width = img.width
+        let height = img.height
+
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width
+          width = maxWidth
+        }
+
+        // Create canvas and compress
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+
+        // Convert to compressed base64
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+        setImageString(compressedBase64)
+        setUploadProgress(100)
+      }
     }
 
     reader.readAsDataURL(file)
   }
 
   const onSubmit = async (data: { title: string }) => {
+    if (!imageString) {
+      setInternalError('Please upload an image')
+      return
+    }
+
     const { topics } = Topics()
     const filteredTopics = topics.filter((topic) => topic.title !== 'All')
     const randomTopic =
@@ -97,13 +139,12 @@ export const Modal = ({
     try {
       await axios.post(`${api}posts`, post)
       refetch()
-      setOpen(false)
+
+      setIsSubmitSuccessful(true)
     } catch (error) {
-      setInternalError('Error creating post')
       console.log(error)
-      setUploadProgress(undefined)
-      setRejectedFiles(false)
-      setImageString(undefined)
+      setInternalError('Error creating post')
+      resetForm()
     }
   }
 
@@ -161,7 +202,12 @@ export const Modal = ({
                 Your post was successfully uploaded!
               </Heading>
 
-              <LiteButton variant='black' onClick={() => setOpen(false)}>
+              <LiteButton
+                variant='black'
+                onClick={() => {
+                  setOpen(false)
+                  resetForm()
+                }}>
                 Done
               </LiteButton>
             </Center>
