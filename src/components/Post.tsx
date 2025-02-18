@@ -57,7 +57,8 @@ export const Post = ({ post, type, isMain = false }: iPostProps) => {
               color={type === 'primary' ? 'white' : 'black'}
               lineHeight='27px'
               fontSize='18px'
-              maxW={'350px'}>
+              maxW={'350px'}
+              fontFamily='var(--font-space-grotesk)'>
               {post.title}
             </Heading>
 

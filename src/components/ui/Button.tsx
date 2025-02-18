@@ -7,6 +7,7 @@ export const buttonRecipe = defineRecipe({
     transition: 'all 0.2s cubic-bezier(.08,.52,.52,1)',
     borderRadius: 'md',
     fontWeight: 'semibold',
+    fontFamily: 'var(--font-space-grotesk)',
     _focus: { transform: 'scale(1.03)' },
   },
   variants: {

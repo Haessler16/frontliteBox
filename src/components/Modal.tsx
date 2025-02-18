@@ -200,7 +200,8 @@ export const Modal = ({
                 fontWeight={500}
                 fontSize='35px'
                 lineHeight={'42px'}
-                textAlign='center'>
+                textAlign='center'
+                fontFamily='var(--font-space-grotesk)'>
                 Your post was successfully uploaded!
               </Heading>
 
@@ -220,7 +221,8 @@ export const Modal = ({
                 fontWeight={500}
                 fontSize='35px'
                 lineHeight={'42px'}
-                textAlign='center'>
+                textAlign='center'
+                fontFamily='var(--font-space-grotesk)'>
                 Upload your post
               </Heading>
 

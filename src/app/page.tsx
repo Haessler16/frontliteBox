@@ -131,7 +131,11 @@ export default function Home() {
       </Box>
 
       <VStack gap={2} alignItems='flex-start' marginY={4}>
-        <Heading as='h4' fontSize='sm' fontWeight={600}>
+        <Heading
+          as='h4'
+          fontSize='sm'
+          fontWeight={600}
+          fontFamily='var(--font-space-grotesk)'>
           Topics
         </Heading>
 
@@ -186,7 +190,10 @@ export default function Home() {
             borderRadius={2}
             justifyContent={'space-between'}
             alignItems={'center'}>
-            <Heading color='white' fontWeight={400}>
+            <Heading
+              color='white'
+              fontWeight={400}
+              fontFamily='var(--font-space-grotesk)'>
               Sign up for our newsletter{' '}
               <span style={{ fontWeight: 600 }}>and get daily updates</span>
             </Heading>
