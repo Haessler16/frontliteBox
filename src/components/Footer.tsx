@@ -9,7 +9,7 @@ export function LiteFooter() {
       bg={colors.purple}
       borderRadius={2}
       p={10}
-      maxH={{ base: '342px', md: '290px' }}
+      maxH={{ base: '342px', md: '250px' }}
       h='100%'>
       <Box
         display='grid'

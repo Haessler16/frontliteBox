@@ -1,7 +1,7 @@
 import { Container, Text, HStack, Box, Heading } from '@chakra-ui/react'
 import { MainTitle } from '@/components/MainTitle'
 import { colors } from '@/theme'
-import { Post, MostPopularPost } from '@/components/Post'
+import { Post, MostPopularPost, iPost } from '@/components/Post'
 import { Separator } from '@chakra-ui/react'
 import { FaXTwitter, FaLinkedinIn, FaFacebookF } from 'react-icons/fa6'
 import { LiteFooter } from '@/components/Footer'
@@ -59,9 +59,7 @@ export default async function PostDetail({
           {/* Hero Post */}
           <Box maxH={'544px'} height='100%' marginBottom={8}>
             <Post
-              title={currentPost.title}
-              image={currentPost.image}
-              tagTitle={currentPost.tagTitle}
+              post={currentPost as unknown as iPost}
               readTime={currentPost.readTime}
               type='primary'
               isMain={true}
@@ -103,9 +101,7 @@ export default async function PostDetail({
               {relatedPosts.map((post, index) => (
                 <Post
                   key={index}
-                  title={post.title}
-                  image={post.image}
-                  tagTitle='AI'
+                  post={post as iPost}
                   readTime='6 mins'
                   type='secondary'
                 />

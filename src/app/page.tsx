@@ -110,7 +110,7 @@ export default function Home() {
     for (let i = 1; i < length; i++) {
       current += add4 ? 4 : 2
       // Span is 2 if the step was +4, else 1
-      posts.push({ value: current, span: add4 ? 2 : 1 })
+      posts.push({ value: current, span: add4 ? 2 : 0 })
       add4 = !add4 // Toggle the step
     }
 
@@ -118,8 +118,7 @@ export default function Home() {
   }
 
   // Example: Generate posts with spans
-  const bum = generatePosts(posts.length)
-  console.log(bum)
+  const postsWithSpans = generatePosts(posts.length)
 
   return (
     <Container
@@ -139,18 +138,7 @@ export default function Home() {
       {/* Main Section */}
 
       <Box maxH={'544px'} height='100%'>
-        <Link
-          href={`/posts/your-kid-ai-videos`}
-          style={{ textDecoration: 'none' }}>
-          <Post
-            title='Your Kid May Already Be Watching AI-Generated Videos on YouTube'
-            image='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
-            tagTitle='Crypto'
-            readTime='6 mins'
-            type='primary'
-            isMain={true}
-          />
-        </Link>
+        <Post post={posts[0]} readTime='6 mins' type='primary' isMain={true} />
       </Box>
 
       <VStack gap={2} alignItems='flex-start' marginY={4}>
@@ -238,17 +226,7 @@ export default function Home() {
                 gridRow={{
                   md: `span ${Number(post.id) === 1 ? 2 : 0}`,
                 }}>
-                <Link
-                  href={`/posts/${post.id}`}
-                  style={{ textDecoration: 'none' }}>
-                  <Post
-                    title={post.title}
-                    image={post.image}
-                    tagTitle={post.tag}
-                    readTime='6 mins'
-                    type='secondary'
-                  />
-                </Link>
+                <Post post={post} readTime='6 mins' type='secondary' />
               </Box>
             ))}
           </Box>
@@ -280,27 +258,21 @@ export default function Home() {
             flexDir={{ base: 'column', md: 'row' }}
             gridTemplateColumns={{ md: 'repeat(2, 1fr)' }}
             gap={4}>
-            {posts.slice(3).map((post) => (
-              <Box
-                key={post.id}
-                gridRow={{
-                  md: `span ${
-                    [5, 7, 11, 13, 17, 19].includes(Number(post.id)) ? 2 : 0
-                  }`,
-                }}>
-                <Link
-                  href={`/posts/${post.id}`}
-                  style={{ textDecoration: 'none' }}>
-                  <Post
-                    title={post.title}
-                    image={post.image}
-                    tagTitle={post.tag}
-                    readTime='6 mins'
-                    type='secondary'
-                  />
-                </Link>
-              </Box>
-            ))}
+            {posts.slice(3).map((post, index) => {
+              const refId = index + 4
+
+              return (
+                <Box
+                  key={post.id}
+                  gridRow={{
+                    md: `span ${
+                      postsWithSpans.find((b) => b.value === refId)?.span
+                    }`,
+                  }}>
+                  <Post post={post} readTime='6 mins' type='secondary' />
+                </Box>
+              )
+            })}
           </Box>
 
           <Center>

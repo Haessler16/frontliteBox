@@ -16,27 +16,24 @@ import { LiteTag } from '@/components/ui/Tags'
 import { RightArrow } from '@/icons/Arrows'
 import { NewsPaper } from '@/icons/NewsPaper'
 
-interface PostProps {
+export interface iPost {
+  id: string
   title: string
   image: string
-  tagTitle: string
+  tag: string
+}
+export interface iPostProps {
+  post: iPost
   readTime: string
   type: 'primary' | 'secondary'
   isMain?: boolean
 }
 
-export const Post = ({
-  title,
-  image,
-  tagTitle,
-  readTime,
-  type,
-  isMain = false,
-}: PostProps) => {
+export const Post = ({ post, readTime, type, isMain = false }: iPostProps) => {
   return (
     <Card.Root overflow='hidden' position='relative' rounded={0} h='100%'>
       <Image
-        src={image}
+        src={post.image}
         alt='Green double couch with wooden legs'
         objectFit='fill'
         h={{ base: isMain ? '100%' : '378px', md: '100%' }}
@@ -50,7 +47,7 @@ export const Post = ({
         flexDir='column'>
         <VStack gap={0} width={'calc(100% - 3rem)'} alignItems='flex-start'>
           <Box bg={type === 'primary' ? 'black' : 'white'} pt={5} pb={1} px={4}>
-            <LiteTag title={tagTitle} />
+            <LiteTag title={post.tag} />
           </Box>
 
           <Box bg={type === 'primary' ? 'black' : 'white'} p={4}>
@@ -61,12 +58,12 @@ export const Post = ({
               lineHeight='27px'
               fontSize='18px'
               maxW={'350px'}>
-              {title}
+              {post.title}
             </Heading>
 
             <HStack justify='space-between' mt={2}>
               <Link
-                href='/'
+                href={`/posts/${post.id}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
