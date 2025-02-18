@@ -11,8 +11,9 @@ import {
   Heading,
   Box,
   Separator,
+  Spinner,
 } from '@chakra-ui/react'
-
+import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import { colors } from '@/theme'
@@ -20,105 +21,131 @@ import { colors } from '@/theme'
 import { MainTitle } from '@/components/MainTitle'
 import { LiteButton } from '@/components/ui/Button'
 
-import { MostPopularPost, Post } from '@/components/Post'
+import { iPost, MostPopularPost, Post } from '@/components/Post'
 import { LiteTagSelector } from '@/components/ui/Tags'
 
 import { LiteFooter } from '@/components/Footer'
 import { Modal } from '@/components/Modal'
+import { api } from '@/config/urlApi'
+import Topics from '@/constants/Topics'
 
-interface Post {
-  id: string
-  title: string
-  image: string
-  // Add other static fields as needed
-}
-
-const posts = [
-  {
-    id: '1',
-    title:
-      'Dictators Used Sandvine Tech to Censor the Internet. The US Finally Did Something About It',
-    tag: 'Crypto',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    id: '2',
-    title: 'Your Kid May Already Be Watching AI-Generated Videos on YouTube',
-    tag: 'Entertainment',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    id: '3',
-    title: 'Here Come the AI Worms',
-    tag: 'AI',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    id: '4',
-    title: 'The AI-Generated Video Boom Is Here',
-    tag: 'Video',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    id: '5',
-    title: 'Tech Giants Are Using AI to Create Fake News',
-    tag: 'Tech',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-  {
-    id: '6',
-    title: 'Web3 Is the Future of the Internet',
-    tag: 'Web3',
-    image:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-  },
-]
+// const posts = [
+//   {
+//     _id: '1',
+//     title:
+//       'Dictators Used Sandvine Tech to Censor the Internet. The US Finally Did Something About It',
+//     tag: 'Crypto',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+//   {
+//     _id: '2',
+//     title: 'Your Kid May Already Be Watching AI-Generated Videos on YouTube',
+//     tag: 'Entertainment',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+//   {
+//     _id: '3',
+//     title: 'Here Come the AI Worms',
+//     tag: 'AI',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+//   {
+//     _id: '4',
+//     title: 'The AI-Generated Video Boom Is Here',
+//     tag: 'Video',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+//   {
+//     _id: '5',
+//     title: 'Tech Giants Are Using AI to Create Fake News',
+//     tag: 'Tech',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+//   {
+//     _id: '6',
+//     title: 'Web3 Is the Future of the Internet',
+//     tag: 'Web3',
+//     image:
+//       'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+//   },
+// ]
 
 export default function Home() {
   // const [posts, setPosts] = useState<Post[]>([])
   // const [page, setPage] = useState(1)
+  const {
+    data: posts,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['posts'],
+    queryFn: () => axios.get(`${api}posts?limit=10&offset=0`),
+  })
 
   const [open, setOpen] = useState(false)
   const [selectedTag, setSelectedTag] = useState<string[]>(['All'])
 
+  const { topics } = Topics()
+
+  // useEffect(() => {
+  //   const getPosts = async () => {
+  //     // const response = await fetch('https://jsonplaceholder.typicode.com/posts')
+  //     const { data } = await axios.get(`${api}posts?limit=10&offset=0`, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     })
+  //     console.log({ data })
+  //   }
+  //   getPosts()
+  // }, [])
+
   useEffect(() => {
-    const getPosts = async () => {
-      // const response = await fetch('https://jsonplaceholder.typicode.com/posts')
-      const { data } = await axios.get(
-        'https://postlitebox.onrender.com/posts?limit=10&offset=0',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-      console.log(data)
+    if (selectedTag.length === 0) {
+      setSelectedTag(['All'])
     }
-    getPosts()
-  }, [])
+  }, [selectedTag])
 
   function generatePosts(length: number) {
-    const posts = [{ value: 1, span: 2 }] // First post has span 2
+    const items = [{ value: 1, span: 2 }] // First post has span 2
     let current = 1
     let add4 = true // Track whether to add 4 or 2 next
 
     for (let i = 1; i < length; i++) {
       current += add4 ? 4 : 2
       // Span is 2 if the step was +4, else 1
-      posts.push({ value: current, span: add4 ? 2 : 0 })
+      items.push({ value: current, span: add4 ? 2 : 0 })
       add4 = !add4 // Toggle the step
     }
 
-    return posts
+    return items
   }
 
-  // Example: Generate posts with spans
-  const postsWithSpans = generatePosts(posts.length)
+  // Generate posts with spans
+  if (isLoading && posts === undefined) {
+    return (
+      <Center height={'100vh'}>
+        <Spinner size='xl' color={colors.purple} />
+      </Center>
+    )
+  }
+
+  if (posts?.data.length === 0) {
+    return (
+      <Center height={'100vh'} flexDir='column' gap={4}>
+        <Heading>No posts found</Heading>
+        <Modal open={open} setOpen={setOpen} refetch={refetch} />
+      </Center>
+    )
+  }
+
+  console.log({ posts, selectedTag })
+  const postsWithSpans = generatePosts(posts?.data.lenght)
 
   return (
     <Container
@@ -132,13 +159,17 @@ export default function Home() {
       <HStack justify='space-between' marginBottom={4}>
         <MainTitle />
 
-        <Modal open={open} setOpen={setOpen} />
+        <Modal open={open} setOpen={setOpen} refetch={refetch} />
       </HStack>
 
       {/* Main Section */}
-
       <Box maxH={'544px'} height='100%'>
-        <Post post={posts[0]} readTime='6 mins' type='primary' isMain={true} />
+        <Post
+          post={posts?.data[0]}
+          readTime='6 mins'
+          type='primary'
+          isMain={true}
+        />
       </Box>
 
       <VStack gap={2} alignItems='flex-start' marginY={4}>
@@ -148,67 +179,20 @@ export default function Home() {
 
         <Box overflowX='auto' w='100%'>
           <HStack gap={2} w='100%'>
-            <LiteTagSelector
-              title='All'
-              isSelected={selectedTag.length === 1 && selectedTag[0] === 'All'}
-              onClick={() => setSelectedTag(['All'])}
-            />
-
-            <LiteTagSelector
-              title='Crypto'
-              isSelected={selectedTag.includes('Crypto')}
-              onClick={() =>
-                setSelectedTag((prev) =>
-                  prev.includes('Crypto')
-                    ? prev.filter((tag) => tag !== 'Crypto')
-                    : [...prev, 'Crypto'],
-                )
-              }
-            />
-            <LiteTagSelector
-              title='AI'
-              isSelected={selectedTag.includes('AI')}
-              onClick={() =>
-                setSelectedTag((prev) =>
-                  prev.includes('AI')
-                    ? prev.filter((tag) => tag !== 'AI')
-                    : [...prev, 'AI'],
-                )
-              }
-            />
-            <LiteTagSelector
-              title='Web3'
-              isSelected={selectedTag.includes('Web3')}
-              onClick={() =>
-                setSelectedTag((prev) =>
-                  prev.includes('Web3')
-                    ? prev.filter((tag) => tag !== 'Web3')
-                    : [...prev, 'Web3'],
-                )
-              }
-            />
-            <LiteTagSelector
-              title='Blockchain'
-              isSelected={selectedTag.includes('Blockchain')}
-              onClick={() =>
-                setSelectedTag((prev) =>
-                  prev.includes('Blockchain')
-                    ? prev.filter((tag) => tag !== 'Blockchain')
-                    : [...prev, 'Blockchain'],
-                )
-              }
-            />
-            <LiteTagSelector
-              title='NFTs'
-              isSelected={selectedTag.includes('NFTs')}
-              onClick={() =>
-                setSelectedTag((prev) =>
-                  prev.includes('NFTs')
-                    ? prev.filter((tag) => tag !== 'NFTs')
-                    : [...prev, 'NFTs'],
-                )
-              }
-            />
+            {topics.map(({ title }) => (
+              <LiteTagSelector
+                key={title}
+                title={title}
+                isSelected={selectedTag.includes(title)}
+                onClick={() => {
+                  setSelectedTag((prev) =>
+                    prev.includes(title)
+                      ? prev.filter((tag) => tag !== title)
+                      : [...prev, title],
+                  )
+                }}
+              />
+            ))}
           </HStack>
         </Box>
       </VStack>
@@ -220,11 +204,11 @@ export default function Home() {
             flexDir={{ base: 'column', md: 'row' }}
             gridTemplateColumns={{ md: 'repeat(2, 1fr)' }}
             gap={4}>
-            {posts.slice(0, 3).map((post) => (
+            {posts?.data.slice(0, 3).map((post: iPost) => (
               <Box
-                key={post.id}
+                key={post._id}
                 gridRow={{
-                  md: `span ${Number(post.id) === 1 ? 2 : 0}`,
+                  md: `span ${Number(post._id) === 1 ? 2 : 0}`,
                 }}>
                 <Post post={post} readTime='6 mins' type='secondary' />
               </Box>
@@ -258,12 +242,12 @@ export default function Home() {
             flexDir={{ base: 'column', md: 'row' }}
             gridTemplateColumns={{ md: 'repeat(2, 1fr)' }}
             gap={4}>
-            {posts.slice(3).map((post, index) => {
+            {posts?.data.slice(3).map((post: iPost, index: number) => {
               const refId = index + 4
 
               return (
                 <Box
-                  key={post.id}
+                  key={post._id}
                   gridRow={{
                     md: `span ${
                       postsWithSpans.find((b) => b.value === refId)?.span
@@ -298,29 +282,7 @@ export default function Home() {
             Most Viewed
           </Heading>
 
-          {[
-            {
-              title:
-                'Dictators Used Sandvine Tech to Censor the Internet. The US Finally Did Something About It',
-              image:
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            },
-            {
-              title: 'Here Come the AI Worms',
-              image:
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            },
-            {
-              title: 'The AI-Generated Video Boom Is Here',
-              image:
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            },
-            {
-              title: 'Tech Giants Are Using AI to Create Fake News',
-              image:
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-            },
-          ].map((post, index) => (
+          {posts?.data.map((post: iPost, index: number) => (
             <Box key={index}>
               <Link
                 href={`/posts/most-viewed-${index + 1}`}

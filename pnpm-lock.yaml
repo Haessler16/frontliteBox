@@ -17,6 +17,9 @@ dependencies:
   '@emotion/styled':
     specifier: ^11.14.0
     version: 11.14.0(@emotion/react@11.14.0)(@types/react@19.0.8)(react@19.0.0)
+  '@tanstack/react-query':
+    specifier: ^5.66.5
+    version: 5.66.5(react@19.0.0)
   axios:
     specifier: ^1.7.9
     version: 1.7.9
@@ -845,6 +848,19 @@ packages:
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
     dependencies:
       tslib: 2.8.1
+    dev: false
+
+  /@tanstack/query-core@5.66.4:
+    resolution: {integrity: sha512-skM/gzNX4shPkqmdTCSoHtJAPMTtmIJNS0hE+xwTTUVYwezArCT34NMermABmBVUg5Ls5aiUXEDXfqwR1oVkcA==}
+    dev: false
+
+  /@tanstack/react-query@5.66.5(react@19.0.0):
+    resolution: {integrity: sha512-D9aABj3/aFeNmifsdllh5O3hPyA8gUnZ1jAV8MjODQ7blirfAyGed9NjAnm8rgEdr1wChyjTT738ij3vY0EREQ==}
+    peerDependencies:
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-core': 5.66.4
+      react: 19.0.0
     dev: false
 
   /@types/estree@1.0.6:

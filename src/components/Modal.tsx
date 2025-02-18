@@ -29,13 +29,18 @@ import { RightArrow, UptArrow } from '@/icons/Arrows'
 import { IoCloseOutline } from 'react-icons/io5'
 import { CheckIcon } from '@/icons/Check'
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form'
+import axios from 'axios'
+import { api } from '@/config/urlApi'
+import Topics from '@/constants/Topics'
 
 export const Modal = ({
   open,
   setOpen,
+  refetch,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
+  refetch: () => void
 }) => {
   const {
     register,
@@ -45,8 +50,11 @@ export const Modal = ({
   const [uploadProgress, setUploadProgress] = useState<number | undefined>(
     undefined,
   )
-  const [imageString, setImageString] = useState<string | null>(null)
+  const [imageString, setImageString] = useState<string | undefined>(undefined)
   const [rejectedFiles, setRejectedFiles] = useState<boolean>(false)
+  const [internalError, setInternalError] = useState<string | undefined>(
+    undefined,
+  )
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader()
@@ -71,11 +79,34 @@ export const Modal = ({
     reader.readAsDataURL(file)
   }
 
-  const onSubmit = (data: { title: string }) => {
-    console.log(data)
+  const onSubmit = async (data: { title: string }) => {
+    const { topics } = Topics()
+    const filteredTopics = topics.filter((topic) => topic.title !== 'All')
+    const randomTopic =
+      filteredTopics[Math.floor(Math.random() * filteredTopics.length)]
+
+    const post = {
+      title: data.title,
+      image: imageString,
+      tags: randomTopic.title,
+      readTime: Math.floor(Math.random() * 30) + 1,
+      authorName: 'Haessler',
+      authorImage: `https://ui-avatars.com/api/?name=Haessler`,
+    }
+
+    try {
+      await axios.post(`${api}posts`, post)
+      refetch()
+      setOpen(false)
+    } catch (error) {
+      setInternalError('Error creating post')
+      console.log(error)
+      setUploadProgress(undefined)
+      setRejectedFiles(false)
+      setImageString(undefined)
+    }
   }
 
-  console.log({ imageString })
   return (
     <DialogRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
       <DialogBackdrop />
@@ -118,6 +149,7 @@ export const Modal = ({
             onClick={() => setOpen(false)}>
             <IoCloseOutline color={colors.black} size={50} />
           </Box>
+
           {isSubmitSuccessful ? (
             <Center flexDirection='column' gap={10}>
               <Heading
@@ -319,6 +351,16 @@ export const Modal = ({
                 </Center>
               </form>
             </>
+          )}
+
+          {internalError && (
+            <Text
+              color='red'
+              fontSize='14px'
+              fontWeight={500}
+              fontFamily='var(--font-space-grotesk)'>
+              {internalError}
+            </Text>
           )}
         </DialogBody>
       </DialogContent>

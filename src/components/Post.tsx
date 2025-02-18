@@ -17,7 +17,7 @@ import { RightArrow } from '@/icons/Arrows'
 import { NewsPaper } from '@/icons/NewsPaper'
 
 export interface iPost {
-  id: string
+  _id: string
   title: string
   image: string
   tag: string
@@ -63,7 +63,7 @@ export const Post = ({ post, readTime, type, isMain = false }: iPostProps) => {
 
             <HStack justify='space-between' mt={2}>
               <Link
-                href={`/posts/${post.id}`}
+                href={`/posts/${post._id}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
